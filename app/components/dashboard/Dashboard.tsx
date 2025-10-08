@@ -17,15 +17,13 @@ const Dashboard = () => {
       setLoading(true);
       setError(null);
 
-      // Comprueba si la variable de entorno está disponible
       if (!process.env.NEXT_PUBLIC_API_URL) {
-        setError("La URL de la API no está configurada.");
+        setError("La URL de la API no está configurada en el frontend.");
         setLoading(false);
         return;
       }
 
       try {
-        // Datos del usuario que enviaremos al backend
         const userProfile = {
           age: 32,
           height: 180,
@@ -37,10 +35,9 @@ const Dashboard = () => {
           goal: "Ganar W/kg"
         };
 
-        // Construye la URL completa y correcta
-        const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/generate_plan`;
+        // La URL es la raíz del dominio del backend
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
-        // Hacemos la llamada real a nuestra API
         const response = await fetch(apiUrl, {
           method: 'POST',
           headers: {
