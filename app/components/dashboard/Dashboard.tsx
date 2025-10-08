@@ -17,9 +17,15 @@ const Dashboard = () => {
       setLoading(true);
       setError(null);
 
+      // Comprueba si la variable de entorno está disponible
+      if (!process.env.NEXT_PUBLIC_API_URL) {
+        setError("La URL de la API no está configurada.");
+        setLoading(false);
+        return;
+      }
+
       try {
-        // Estos son los datos del usuario que enviaremos al backend.
-        // En el futuro, vendrían de un formulario de perfil.
+        // Datos del usuario que enviaremos al backend
         const userProfile = {
           age: 32,
           height: 180,
@@ -31,9 +37,12 @@ const Dashboard = () => {
           goal: "Ganar W/kg"
         };
 
+        // Construye la URL completa y correcta
+        const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/generate_plan`;
+
         // Hacemos la llamada real a nuestra API
-        const response = await fetch('https://nutricion-gure-api.onrender.com/', {
-          method: 'POST', // ¡Muy importante que sea POST!
+        const response = await fetch(apiUrl, {
+          method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
@@ -41,7 +50,6 @@ const Dashboard = () => {
         });
 
         if (!response.ok) {
-          // Si la respuesta del servidor no es exitosa (ej. error 500), lanzamos un error.
           const errorData = await response.json();
           throw new Error(errorData.detail || `Error del servidor: ${response.status}`);
         }
@@ -58,15 +66,13 @@ const Dashboard = () => {
     };
 
     fetchPlan();
-  }, []); // Se ejecuta solo una vez cuando el componente se carga
+  }, []);
 
   if (loading) return <Loader />;
-  // Mostramos un mensaje de error si la llamada a la API falla
   if (error) return <p className="text-red-500 text-center font-bold">{error}</p>;
   if (!plan) return <p className="text-center">No se ha podido generar un plan.</p>;
 
-  // El resto del componente para mostrar los datos sigue igual
-  const todayPlan = plan.DetailedMealPlan[0];
+  const todayPlan = plan.DetailedMealPlan && plan.DetailedMealPlan[0];
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -75,7 +81,7 @@ const Dashboard = () => {
           <h2 className="text-xl font-bold text-white mb-2">Resumen del Análisis</h2>
           <p className="text-gray-300">{plan.AnalysisSummary}</p>
         </div>
-        {todayPlan && (
+        {todayPlan ? (
           <div>
             <h2 className="text-2xl font-bold text-white mb-4">{todayPlan.day}</h2>
             <div className="space-y-4">
@@ -84,6 +90,8 @@ const Dashboard = () => {
               {todayPlan.meals.dinner && <MealCard title="Cena" meal={todayPlan.meals.dinner} />}
             </div>
           </div>
+        ) : (
+          <p className="text-gray-400">No hay un plan detallado disponible.</p>
         )}
       </div>
       <div className="space-y-6">
