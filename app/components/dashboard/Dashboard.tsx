@@ -32,7 +32,7 @@ const Dashboard = () => {
         };
 
         // Hacemos la llamada real a nuestra API
-        const response = await fetch('/api/generate_plan', {
+        const response = await fetch('https://nutricion-gure-api.onrender.com/', {
           method: 'POST', // ¡Muy importante que sea POST!
           headers: {
             'Content-Type': 'application/json',
